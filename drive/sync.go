@@ -260,22 +260,33 @@ func prepareRemoteRelPaths(root *drive.File, files []*drive.File) (map[string]st
 
 func checkFiles(files []*drive.File) error {
 	uniq := map[string]string{}
+	var lasterr error
 
 	for _, f := range files {
 		// Ensure all files have exactly one parent
-		if len(f.Parents) != 1 {
-			return fmt.Errorf("File %s does not have exacly one parent", f.Id)
+		if len(f.Parents) == 0 {
+			fmt.Sprintf("File %s has no parent", f.Id)
+			lasterr = fmt.Errorf("File %s has no parent", f.Id)
+		} else if len(f.Parents) >  1 {
+			fmt.Sprintf("File %s has multiple parents", f.Id)
+			lasterr = fmt.Errorf("File %s has multiple parents", f.Id)
 		}
 
-		// Ensure that there are no duplicate files
-		uniqKey := f.Name + f.Parents[0]
-		if dupeId, isDupe := uniq[uniqKey]; isDupe {
-			return fmt.Errorf("Found name collision between %s and %s", f.Id, dupeId)
+		if len(f.Parents) != 0 {
+			// Ensure that there are no duplicate files
+			uniqKey := f.Name + f.Parents[0]
+			if dupeId, isDupe := uniq[uniqKey]; isDupe {
+				fmt.Sprintf("Found name collision between %s and %s", f.Id, dupeId)
+				lasterr = fmt.Errorf("Found name collision between %s and %s", f.Id, dupeId)
+			}
+			uniq[uniqKey] = f.Id
 		}
-		uniq[uniqKey] = f.Id
 	}
-
-	return nil
+	if lasterr != nil {
+		return lasterr
+	} else {
+		return nil
+	}
 }
 
 type LocalFile struct {

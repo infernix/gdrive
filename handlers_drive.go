@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/prasmussen/gdrive/auth"
 	"github.com/prasmussen/gdrive/cli"
-	"github.com/prasmussen/gdrive/drive"
+	"drive"
 	"io"
 	"io/ioutil"
 	"net/http"
